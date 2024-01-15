@@ -1,6 +1,6 @@
-# Remove parenthesis requirement for optional opaque and existential types
+# Remove parenthesis requirement for opaque and existential types
 
-* Proposal: [SE-NNNN](NNNN-remove-parenthesis-requirement-for-optional-opaque-and-existential-types.md)
+* Proposal: [SE-NNNN](NNNN-remove-parenthesis-requirement-for-opaque-and-existential-types.md)
 * Authors: [Holly Borla](https://github.com/hborla), [Wade Tregaskis](https://github.com/wadetregaskis)
 * Review Manager: TBD
 * Status: **Awaiting implementation**
@@ -13,7 +13,7 @@
 
 ## Introduction
 
-This proposal simplifies the syntax for type declarations involving optional opaque or optional existential types, by removing the requirement that the type inside the `Optional` be declared inside parenthesis.  e.g.:
+This proposal simplifies the syntax for type declarations involving opaque or existential types, by removing the requirement that they be enclosed in parenthesis whenever the intent is unambiguous.  This is the case whenever the expression contains only one protocol, e.g.:
 
 ```swift
 var userPreference: (any Preference)?
@@ -25,18 +25,39 @@ var userPreference: (any Preference)?
 var userPreference: any Preference?
 ```
 
+This applies to optionals (`?`), implicitly unwrapped optionals (`!`), and the `Type` member.  e.g.:
+
+```swift
+let outlet: any NSView!
+```
+
+```swift
+var type: some Collection.Type
+```
+
 Parenthesis may still be used if the author wishes.
+
+**TODO: Pick one of these two possible approaches:**
+
+A.  In essence, this is changing the nature of `some` & `any` from prefix operators to expression markers. >>  **TODO: …which implies `some Optional<P>` should work too… should it?  See also Future Directions…**
+
+B.  A counter-example, where the parenthesis remain required, is `(some T).X` whenever it is unclear what `X` is (now _or in future_).  This must consider the possibility of future language changes such as nested protocols.  This proposal errs on the side of caution by only covering cases where `X` cannot ever be a protocol or class type. **TODO: figure out if this is an allowlist of ?/!/Type or if it's actually determined at compile time based on the definition of T & X**
 
 ## Motivation
 
-These particular parenthesis do not provide any clarity and are unintuitive.  While the presence of helpful compiler diagnostics and FixIts help mitigate the impact, it is still a frustration to users.
+Swift eschews unnecessary ceremony, such as needless punctuation - particular parenthesis.
 
-The parenthesis are not meaningful since even in their absence there is only one valid interpretation:
+In the cases in question, these particular parenthesis do not provide any clarity - neither to humans nor the compiler.  They are unintuitive and a source of frustration to users.  While the presence of helpful compiler diagnostics and FixIts helps mitigate the impact when writing code, they do not help readers.
 
-1. From a technical perspective, `some P?` cannot mean `some Optional<P>` because that is syntactically invalid.
+The parenthesis are not meaningful as even in their absence there is only one valid interpretation:
+
+1. From a technical perspective, `some P?` cannot mean `some Optional<P>` because that is syntactically invalid.  Likewise for `some P!` and `some P.Type`.
+
 2. From an intent perspective, the result is the same no matter what ordering is chosen.  `some Optional<P>`, while not syntactically invalid, can still only be attempting one thing:  to declare an optional type of some P.
 
     In fact, for the existential case the compiler already provides a FixIt to rewrite `any Optional<P>` as the surely intended `Optional<any P>`.  It is able to do this because there is no plausible ambiguity as to what the author intended.
+    
+    Similarly for `some P.Type`, `Type` is a built-in member of _all_ types that is always concrete, so `some` and `any` can never apply to it.  Thus the `some` or `any` prefix can logically only be intended for the `P`.
 
 Part of the reason the current parenthesis requirement is confusing is that it is inconsistent with how concretely-typed cases work.  Consider, for example:
 
@@ -105,7 +126,17 @@ Since prior Swift versions require the parenthesis, code that omits them will be
 
 ## Future directions
 
-None suggested.
+### Also allow e.g. `some Optional<P>`
+
+If `some P?` is now valid, one could argue that its long form should also be valid for consistency, i.e.: `some Optional<P>`.  The same motiviations & principles apply - most importantly, that the author's intent is unambiguous.
+
+This may have greater ramifications, however.  The farther the `some` / `any` keyword is from the applicable part of the expression, the greater the potential for misunderstanding the definition - even if technically it is unambiguous.  Also, it increases the probability of mistakes during refactoring (e.g. a naive textual search-and-replace for `Optional<P>` to `Optional<T>` where `T` is a concrete type, and thus the resulting whole expression `some Optional<T>` is invalid).
+
+Additionally, it introduces redundancy into the grammar, as now you can write `Optional<some P>` _or_ `some Optional<P>`, and they have the exact same effect.  Having multiple ways to write the same thing makes the language harder to learn (newcomers may tend to assume there's a difference and be waylaid trying to figure out what it is) and harder to work with (now one has to consider multiple possible grammars when searching, for example).
+
+While that also applies in principle to optional parenthesis, parenthesis are already optional in most cases - e.g. one already has to know that `1 + 2` is the same as `(1 + 2)` or `(1) + 2` or `((1 + ((2))))` or any of infinitely many other possibilities.  So this proposal introduces no _new_ conceptual burden on learners.
+
+**TODO: figure out if we actually believe this should be a future (or never) direction, or if actually we should include this in the proposal.**
 
 ## Alternatives considered
 
