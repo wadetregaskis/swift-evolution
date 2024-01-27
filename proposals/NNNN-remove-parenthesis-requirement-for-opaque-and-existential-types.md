@@ -85,11 +85,7 @@ The inconsistency it was concerned with is syntactically similar cases:
 
 The first case, closure syntax, is distinct because there _is_ ambiguity as to the author's intent.  Parenthesis are unavoidable, and that they are not required as `() -> (P?)` is essentially syntactic sugar to smooth the more common case.
 
-The second case, protocol compositions, is quite similar to optional opaque or existential types, but not quite the same.  Although there is only one _technically_ valid interpretation in the absence of parenthesis, it is _not_ clear what the author's intent was.  They might genuinely be intending to express "_requires_ Q and _might_ also be P", even though that is not supported in Swift today (and whether it has practical merit, it is logically possible).
-
-Lastly, that we have these omitting-parenthesis sugars at all is well-precedented and pervasive, in operator syntax.  `1 + 2 * 3` is ambiguous, requiring knowledge of arbitrary precedence rules to correctly interpret - rules that are complex and not consistent between programming languages - and yet it is permitted in Swift.  Experience has shown that even when there _is_ room for misinterpretation, omitting parenthesis can still be the right trade-off.
-
-**Re. the last paragraph:  selling past the close?  too tangential?  might open up a distracting can of worms regarding whether parenthesis _should_ be required for multi-operator expressions?**
+In the second case, protocol compositions are different from single-constraint opaque and existential types because there are multiple places where the `?` or `.Type` could be written. For example, one may argue that `any P & Q.Type` should mean `(any P & Q).Type`, but it's far less obvious that the constraint to `P` still applies to the instance type instead of the resulting metatype. Further, if metatypes ever gain the ability to conform to protocols in the future, we may want the `any P & Q.Type` syntax to truly mean `any P & (Q.Type)`, aka an existential metatype where the metatype itself also conforms to `P`.
 
 ## Proposed solution
 
