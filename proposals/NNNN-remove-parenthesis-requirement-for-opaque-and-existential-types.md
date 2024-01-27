@@ -47,17 +47,13 @@ B.  A counter-example, where the parenthesis remain required, is `(some T).X` wh
 
 Swift eschews unnecessary ceremony, such as needless punctuation - particular parenthesis.
 
-In the cases in question, these particular parenthesis do not provide any clarity - neither to humans nor the compiler.  They are unintuitive and a source of frustration to users.  While the presence of helpful compiler diagnostics and FixIts helps mitigate the impact when writing code, they do not help readers.
+In the cases in question, these particular parenthesis do not provide any clarity - neither to humans nor the compiler.  They are unintuitive and a source of frustration to users.  While the presence of helpful compiler diagnostics and fix-its helps mitigate the impact when writing code, they do not help readers.
 
-The parenthesis are not meaningful as even in their absence there is only one valid interpretation:
+The parenthesis are not meaningful as even in their absence there is only one valid interpretation: `some P?` cannot mean `some Optional<P>` because `Optional<P>` is not a valid generic constraint for a type parameter.  Likewise for `some P!` and `some P.Type`. When a programmer writes `some P?`, it is already clear without parenthesis that the intent is to write an optional type of `some P`.
 
-1. From a technical perspective, `some P?` cannot mean `some Optional<P>` because that is syntactically invalid.  Likewise for `some P!` and `some P.Type`.
-
-2. From an intent perspective, the result is the same no matter what ordering is chosen.  `some Optional<P>`, while not syntactically invalid, can still only be attempting one thing:  to declare an optional type of some P.
-
-    In fact, for the existential case the compiler already provides a FixIt to rewrite `any Optional<P>` as the surely intended `Optional<any P>`.  It is able to do this because there is no plausible ambiguity as to what the author intended.
+The compiler can already determine that `any P?` was intended to mean `(any P)?`, as evidenced by the fix-it provided with the error message for `any P?` that inserts the parenthesis. It is able to do this because there is no plausible ambiguity as to what the author intended.
     
-    Similarly for `some P.Type`, `Type` is a built-in member of _all_ types that is always concrete, so `some` and `any` can never apply to it.  Thus the `some` or `any` prefix can logically only be intended for the `P`.
+For `some P.Type`, there is no semantic difference between `(some P).Type` and `some (P.Type)`. The existential type that representes any concrete metatype whose instance type conforms to `P` is already written as `any P.Type`; it's confusing that the opaque type that represents some concrete metatype whose instance type conforms to `P` cannot be written `some P.Type`.
 
 Part of the reason the current parenthesis requirement is confusing is that it is inconsistent with how concretely-typed cases work.  Consider, for example:
 
@@ -85,11 +81,11 @@ This also confounds otherwise straightforward refactorings (e.g. textual search 
 The inconsistency it was concerned with is syntactically similar cases:
 
 1. Closure syntax, e.g. `() -> P?`.  This can plausibly be taken as intending to make the whole closure optional, but it is more likely intending to make the closure's return value optional.  The compiler assumes the latter intent, and requires parenthesis to spell the former.
-2. Type unions, e.g. `Q & P?`.  The only valid interpretation is as `Optional<Q & P>`, because `Q & Optional<P>` is logically invalid.  Currently the compiler requires parenthesis, like it does for `some P?` or `any P?`.
+2. Protocol compositions, e.g. `Q & P?`.  The only valid interpretation is as `Optional<Q & P>`, because `Q & Optional<P>` is logically invalid.  Currently the compiler requires parenthesis, like it does for `some P?` or `any P?`.
 
 The first case, closure syntax, is distinct because there _is_ ambiguity as to the author's intent.  Parenthesis are unavoidable, and that they are not required as `() -> (P?)` is essentially syntactic sugar to smooth the more common case.
 
-The second case, type unions, is quite similar to optional opaque or existential types, but not quite the same.  Although there is only one _technically_ valid interpretation in the absence of parenthesis, it is _not_ clear what the author's intent was.  They might genuinely be intending to express "_requires_ Q and _might_ also be P", even though that is not supported in Swift today (and whether it has practical merit, it is logically possible).
+The second case, protocol compositions, is quite similar to optional opaque or existential types, but not quite the same.  Although there is only one _technically_ valid interpretation in the absence of parenthesis, it is _not_ clear what the author's intent was.  They might genuinely be intending to express "_requires_ Q and _might_ also be P", even though that is not supported in Swift today (and whether it has practical merit, it is logically possible).
 
 Lastly, that we have these omitting-parenthesis sugars at all is well-precedented and pervasive, in operator syntax.  `1 + 2 * 3` is ambiguous, requiring knowledge of arbitrary precedence rules to correctly interpret - rules that are complex and not consistent between programming languages - and yet it is permitted in Swift.  Experience has shown that even when there _is_ room for misinterpretation, omitting parenthesis can still be the right trade-off.
 
