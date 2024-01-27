@@ -89,11 +89,9 @@ In the second case, protocol compositions are different from single-constraint o
 
 ## Proposed solution
 
-The parenthesis will become optional in cases where there is no plausible ambiguity as to the author's intent, such as the simple and common forms of standalone `some P?` and `any P?`, as well as where such simple expressions appear already enclosed in parenthesis or brackets, e.g. `Response<some P?>`.
+We propose eliding parenthesis for optional opaque and existential types using the `?` syntax, and opaque metatypes using the `some P.Type` syntax. In these cases, there is no plausible ambiguity as to the author's intent. The parenthesis can still be written explicitly, and the shorthand can be used in structural positionm, e.g. `Response<some P?>`.
 
-Counter-examples, where parenthesis will remain required in order to clarify intent, include `any P & Q?`.  **TODO: more examples**
-
-**TODO: flesh out the details of interactions with other type declaration syntax**
+Eliding parenthesis is only supported when there is a single constraint; `some` and `any` explicitly applied to a protocol composition may not elide parenthesis.
 
 ## Detailed design
 
@@ -103,6 +101,10 @@ grammar. If it's a new API, show the full API and its documentation
 comments detailing what it does. The detail in this section should be
 sufficient for someone who is *not* one of the authors to be able to
 reasonably implement the feature.
+
+Counter-examples, where parenthesis will remain required in order to clarify intent, include `any P & Q?`.  **TODO: more examples**
+
+**TODO: flesh out the details of interactions with other type declaration syntax**
 
 ## Source compatibility
 
