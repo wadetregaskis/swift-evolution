@@ -89,7 +89,7 @@ In the second case, protocol compositions are different from single-constraint o
 
 ## Proposed solution
 
-We propose eliding parenthesis for optional opaque and existential types using the `?` syntax, and opaque metatypes using the `some P.Type` syntax. In these cases, there is no plausible ambiguity as to the author's intent. The parenthesis can still be written explicitly, and the shorthand can be used in structural positionm, e.g. `Response<some P?>`.
+We propose eliding parenthesis for optional opaque and existential types using the `?` syntax, and opaque metatypes using the `some P.Type` syntax. In these cases, there is no plausible ambiguity as to the author's intent. The parenthesis can still be written explicitly, and the shorthand can be used in structural positions, e.g. `Response<some P?>`.
 
 Eliding parenthesis is only supported when there is a single constraint; `some` and `any` explicitly applied to a protocol composition may not elide parenthesis.
 
