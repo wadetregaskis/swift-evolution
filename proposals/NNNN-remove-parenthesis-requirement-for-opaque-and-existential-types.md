@@ -53,7 +53,7 @@ The parenthesis are not meaningful as even in their absence there is only one va
 
 The compiler can already determine that `any P?` was intended to mean `(any P)?`, as evidenced by the fix-it provided with the error message for `any P?` that inserts the parenthesis. It is able to do this because there is no plausible ambiguity as to what the author intended.
     
-For `some P.Type`, there is no semantic difference between `(some P).Type` and `some (P.Type)`. The existential type that representes any concrete metatype whose instance type conforms to `P` is already written as `any P.Type`; it's confusing that the opaque type that represents some concrete metatype whose instance type conforms to `P` cannot be written `some P.Type`.
+For `some P.Type`, there is no semantic difference between `(some P).Type` and `some (P.Type)`. The existential type that represents any concrete metatype whose instance type conforms to `P` is already written as `any P.Type`; it's confusing that the opaque type that represents some concrete metatype whose instance type conforms to `P` cannot be written `some P.Type`.
 
 Part of the reason the current parenthesis requirement is confusing is that it is inconsistent with how concretely-typed cases work.  Consider, for example:
 
