@@ -13,7 +13,7 @@
 
 ## Introduction
 
-This proposal simplifies the syntax for type declarations involving opaque or existential types, by removing the requirement that they be enclosed in parenthesis whenever the intent is unambiguous.  This is the case whenever the expression contains only one protocol, e.g.:
+This proposal simplifies the syntax for type declarations involving opaque or existential types, by removing the requirement that they be enclosed in parenthesis, e.g.:
 
 ```swift
 var userPreference: (any Preference)?
