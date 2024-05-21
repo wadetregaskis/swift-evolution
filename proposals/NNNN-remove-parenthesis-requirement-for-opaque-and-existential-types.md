@@ -43,7 +43,7 @@ Swift eschews unnecessary ceremony, such as needless punctuation - particular pa
 
 In the cases in question, the parenthesis do not provide any clarity - neither to humans nor the compiler.  They are unintuitive and a source of frustration to users.  While the presence of helpful compiler diagnostics and fix-its helps mitigate the impact when writing code, they do not help readers.
 
-The parenthesis are not meaningful as even in their absence there is only one valid interpretation: `some P?` cannot mean `some Optional<P>` because `Optional<P>` is not a valid generic constraint for a type parameter.  Likewise for `some P!` and `some P.Type`. When a programmer writes `some P?`, it is already clear without parenthesis that the intent is to write an optional type of `some P`.
+The reason the parenthesis are not meaningful is that even in their absence there is only the same, sole valid interpretation: `some P?` must mean `Optional<some P>` because `some Optional<P>` is not valid (`Optional` is a concrete type name).  Likewise for `some P!` and `some P.Type`.
 
 The compiler can already determine that `any P?` was intended to mean `(any P)?`, as evidenced by the fix-it provided with the error message for `any P?` that inserts the parenthesis. It is able to do this because there is no plausible ambiguity as to what the author intended.
     
