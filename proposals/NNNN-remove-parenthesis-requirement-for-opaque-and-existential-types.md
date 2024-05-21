@@ -162,7 +162,7 @@ A 'some' type must specify only 'Any', 'AnyObject', protocols, and/or a base cla
 
 It does also have a FixIt, although in Xcode 15 that FixIt is broken (it turns `some P?` into `(some P)??`, which is likely to compound the user's confusion).
 
-If the parenthesis requirement is kept, it would be wise to at least improve the optional opaque type compiler diagnostics.
+If the parenthesis requirement is kept - if this proposal is rejected - it would be wise to _at least_ improve the optional opaque type compiler diagnostics, and fix the broken FixIt(s).
 
 ## Acknowledgments
 
