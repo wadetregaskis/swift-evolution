@@ -74,18 +74,18 @@ Previously, [SE-0328: Structural opaque result types](https://github.com/apple/s
 
 The inconsistency it was concerned with is syntactically similar cases:
 
-1. Closure syntax, e.g. `() -> P?`.  This can plausibly be taken as intending to make the whole closure optional, but it is more likely intending to make the closure's return value optional.  The compiler assumes the latter intent, and requires parenthesis to spell the former.
-2. Protocol compositions, e.g. `Q & P?`.  The only valid interpretation is as `Optional<Q & P>`, because `Q & Optional<P>` is logically invalid.  Currently the compiler requires parenthesis, like it does for `some P?` or `any P?`.
+1. Closure syntax, e.g. `() -> P?`.  This can plausibly be taken as intending to make the whole closure optional, but it is more likely intending to make the closure's return value optional.  The compiler assumes the latter intent, and requires parenthesis to spell the former (`(() -> P)?`).
+2. Protocol compositions, e.g. `Q & P?`.  The only valid interpretation is as `Optional<Q & P>` (because `Q & Optional<P>` is logically invalid) but the SE-0328 authors argued that treating it as such would complicate the language with special-casing and thus make it harder to learn.
 
-The first case, closure syntax, is distinct because there _is_ ambiguity as to the author's intent.  Parenthesis are unavoidable, and that they are not required as `() -> (P?)` is essentially syntactic sugar to smooth the more common case.
+However, the first case, closure syntax, is distinct from `some P?` because with `() -> P?` there _is_ ambiguity as to the author's intent; there _are_ multiple valid interpretations.  Thus parenthesis are unavoidable (and that they are not required to express `() -> (P?)` is an _existing_ special treatment to smooth the more common case, which we think experience has proven to be wise).
 
-In the second case, protocol compositions are different from single-constraint opaque and existential types because there are multiple places where the `?` or `.Type` could be written. For example, one may argue that `any P & Q.Type` should mean `(any P & Q).Type`, but it's far less obvious that the constraint to `P` still applies to the instance type instead of the resulting metatype. Further, if metatypes ever gain the ability to conform to protocols in the future, we may want the `any P & Q.Type` syntax to truly mean `any P & (Q.Type)`, aka an existential metatype where the metatype itself also conforms to `P`.
+In the second case, protocol compositions are different from single-constraint opaque and existential types because there are multiple places where the `?` or `.Type` could be written. For example, one may argue that `any P & Q.Type` should mean `(any P & Q).Type`, but it's far less obvious that the constraint to `P` still applies to the instance type instead of the resulting metatype.  Further, if metatypes ever gain the ability to conform to protocols in the future, we may want the `any P & Q.Type` syntax to truly mean `any P & (Q.Type)`, a.k.a. an existential metatype where the metatype itself also conforms to `P`.  Thus while _currently_ technically unambiguous, we think it may plausibly become ambiguous in future, and thus continuing to require the parenthesis is wise.
 
 ## Proposed solution
 
 We propose eliding parenthesis for optional opaque and existential types using the `?` syntax, and opaque metatypes using the `some P.Type` syntax. In these cases, there is no plausible ambiguity as to the author's intent. The parenthesis can still be written explicitly, and the shorthand can be used in structural positions, e.g. `Response<some P?>`.
 
-Eliding parenthesis is only supported when there is a single constraint; `some` and `any` explicitly applied to a protocol composition may not elide parenthesis.
+Eliding parenthesis is only supported when there is a single constraint; `some` and `any` explicitly applied to a protocol composition may not elide parenthesis (e.g. `P & Q?` remains invalid, as discussed above).
 
 ## Detailed design
 
