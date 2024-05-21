@@ -41,7 +41,7 @@ Parenthesis may still be used if the author wishes.
 
 Swift eschews unnecessary ceremony, such as needless punctuation - particular parenthesis.
 
-In the cases in question, these particular parenthesis do not provide any clarity - neither to humans nor the compiler.  They are unintuitive and a source of frustration to users.  While the presence of helpful compiler diagnostics and fix-its helps mitigate the impact when writing code, they do not help readers.
+In the cases in question, the parenthesis do not provide any clarity - neither to humans nor the compiler.  They are unintuitive and a source of frustration to users.  While the presence of helpful compiler diagnostics and fix-its helps mitigate the impact when writing code, they do not help readers.
 
 The parenthesis are not meaningful as even in their absence there is only one valid interpretation: `some P?` cannot mean `some Optional<P>` because `Optional<P>` is not a valid generic constraint for a type parameter.  Likewise for `some P!` and `some P.Type`. When a programmer writes `some P?`, it is already clear without parenthesis that the intent is to write an optional type of `some P`.
 
@@ -49,7 +49,7 @@ The compiler can already determine that `any P?` was intended to mean `(any P)?`
     
 For `some P.Type`, there is no semantic difference between `(some P).Type` and `some (P.Type)`. The existential type that represents any concrete metatype whose instance type conforms to `P` is already written as `any P.Type`; it's confusing that the opaque type that represents some concrete metatype whose instance type conforms to `P` cannot be written `some P.Type`.
 
-Part of the reason the current parenthesis requirement is confusing is that it is inconsistent with how concretely-typed cases work.  Consider, for example:
+Another reason the current parenthesis requirement is confusing is that it is inconsistent with how concretely-typed cases work.  Consider, for example:
 
 ```swift
 func a1() -> Int?
@@ -146,9 +146,9 @@ This of course has the same concerns, magnified.  In particular, complex generic
 
 ## Alternatives considered
 
-### Improving compiler diagnostics
+### Improved compiler diagnostics
 
-The optional existential case is better covered, currently, than the optional opaque type case.  The former has a simple, clear message and associated FixIt:
+The optional existential case is currently better covered than the optional opaque type case.  The former has a simple, clear message and associated FixIt:
 
 ```
 Optional 'any' type must be written '(any BinaryInteger)?'
