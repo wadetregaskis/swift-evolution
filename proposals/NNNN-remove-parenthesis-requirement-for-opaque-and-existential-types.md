@@ -70,7 +70,7 @@ Similarly, if you start with non-optional types and then make them optional, the
 
 This also confounds otherwise straightforward refactorings (e.g. textual search & replace).
 
-[SE-0328: Structural opaque result types](https://github.com/apple/swift-evolution/blob/main/proposals/0328-structural-opaque-result-types.md) [considered not requiring the parenthesis but rejected it](https://github.com/apple/swift-evolution/blob/main/proposals/0328-structural-opaque-result-types.md#syntax-for-optionals-1) on the belief that it was insufficient convenience for the inconsistency it introduces.
+Previously, [SE-0328: Structural opaque result types](https://github.com/apple/swift-evolution/blob/main/proposals/0328-structural-opaque-result-types.md) did consider not requiring the parenthesis, but [rejected it](https://github.com/apple/swift-evolution/blob/main/proposals/0328-structural-opaque-result-types.md#syntax-for-optionals-1) on the belief that it was insufficient convenience for the inconsistency it introduces.
 
 The inconsistency it was concerned with is syntactically similar cases:
 
