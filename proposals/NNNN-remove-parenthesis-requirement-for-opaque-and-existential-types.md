@@ -37,12 +37,6 @@ var type: some Collection.Type
 
 Parenthesis may still be used if the author wishes.
 
-**TODO: Pick one of these two possible approaches:**
-
-A.  In essence, this is changing the nature of `some` & `any` from prefix operators to expression markers. >>  **TODO: …which implies `some Optional<P>` should work too… should it?  See also Future Directions…**
-
-B.  A counter-example, where the parenthesis remain required, is `(some T).X` whenever it is unclear what `X` is (now _or in future_).  This must consider the possibility of future language changes such as nested protocols.  This proposal errs on the side of caution by only covering cases where `X` cannot ever be a protocol or class type. **TODO: figure out if this is an allowlist of ?/!/Type or if it's actually determined at compile time based on the definition of T & X**
-
 ## Motivation
 
 Swift eschews unnecessary ceremony, such as needless punctuation - particular parenthesis.
@@ -120,17 +114,35 @@ Since prior Swift versions require the parenthesis, code that omits them will be
 
 ## Future directions
 
-### Also allow e.g. `some Optional<P>`
+The following are put forth as _possible_ future directions, not necessarily recommended by us.  In most cases we are simply currently unsure if they are the right direction.  We enumerate them here both for intellectual interest and because we anticipate readers of this proposal may wonder why this proposal does not go further in these directions.  The limited removal of parenthesis, as proposed, is a simple change that requires no meaningful trade-offs and has no downsides, whereas these potential future directions do.
 
-If `some P?` is now valid, one could argue that its long form should also be valid for consistency, i.e.: `some Optional<P>`.  The same motiviations & principles apply - most importantly, that the author's intent is unambiguous.
+### Allow separation of the keyword from the placeholder type name
 
-This may have greater ramifications, however.  The farther the `some` / `any` keyword is from the applicable part of the expression, the greater the potential for misunderstanding the definition - even if technically it is unambiguous.  Also, it increases the probability of mistakes during refactoring (e.g. a naive textual search-and-replace for `Optional<P>` to `Optional<T>` where `T` is a concrete type, and thus the resulting whole expression `some Optional<T>` is invalid).
+e.g. permit `some Optional<P>` as equivalent to `Optional<some P>`, on the basis that while syntactically redundant, the author's intent is still unambiguous.  Permitting either form makes the language more accomodating of natural differences in intuition and ways of thinking between programmers.
 
-Additionally, it introduces redundancy into the grammar, as now you can write `Optional<some P>` _or_ `some Optional<P>`, and they have the exact same effect.  Having multiple ways to write the same thing makes the language harder to learn (newcomers may tend to assume there's a difference and be waylaid trying to figure out what it is) and harder to work with (now one has to consider multiple possible grammars when searching, for example).
+Additionally, if the abbreviation `some P?` is valid, one can argue that its long form should also be valid for consistency, i.e.: `some Optional<P>`.
 
-While that also applies in principle to optional parenthesis, parenthesis are already optional in most cases - e.g. one already has to know that `1 + 2` is the same as `(1 + 2)` or `(1) + 2` or `((1 + ((2))))` or any of infinitely many other possibilities.  So this proposal introduces no _new_ conceptual burden on learners.
+However, there are potential trade-offs / downsides:
 
-**TODO: figure out if we actually believe this should be a future (or never) direction, or if actually we should include this in the proposal.**
+* Having multiple ways to write the same thing can make the language harder to learn (newcomers may tend to assume there's a functional difference and be waylaid trying to figure out what it is).
+
+* The further the `some` / `any` keyword is from the placeholder type name, the greater the potential for misunderstanding or misreading the definition, and the less self-explanatory the code is - even if technically it is unambiguous.
+
+  For example, consider encountering `any Record<Expense>` in unfamiliar code.  Without knowing a priori what `Record` or `Expense` is, you cannot tell if they are protocols or concrete types.  Therefore you cannot intuit where the existential is, the position of which may have significant ramifications (most obviously for usage and semantics, but also potentially for runtime performance).
+
+* It increases the probability of mistakes during refactoring (e.g. a naive textual search-and-replace for `Optional<P>` to `Optional<T>` where `T` is a concrete type, and thus the resulting whole expression `some Optional<T>` is invalid).
+
+  This similarly concerns tooling that operates on Swift code at the textual or AST levels.
+
+### Make `some` / `any` behave like `try`
+
+A broader generalisation of the above is for `any` / `some` to become more akin to `try`, i.e. marker keywords that signal / enable use of their function anywhere in the remainder of the statement and are not necessarily required on every individual occurrence of their behaviour within the statement.
+
+This would permit terser syntax like `some Collection<Codable>`,  meaning some `Collection` type containing some `Codable` type.  Or similarly `any Collection<Codable>` for the existential equivalent.
+
+Heterogenous use of the two keywords would still follow naturally due to the nesting nature of generic expressions, e.g. `some Collection<any Codable>` is still clear and unambiguous.  For that reason this would not be source-breaking (but would obviously be backwards incompatible).
+
+This of course has the same concerns, magnified.  In particular, complex generic expressions are now not only not self-explanatory as to which parts are opaque types or existentials, but you cannot even tell how many existentials or opaque types are in the expression.  e.g. does `some Record<Expense>` mean `some Record<some Expense>` or `Record<some Expense>` or `some Record<Expense>`?
 
 ## Alternatives considered
 
